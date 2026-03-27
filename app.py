@@ -109,7 +109,13 @@ def create_app():
 
     return app
 
-
+@app.route("/")
+def home():
+    return {
+        "status": "running",
+        "app": "OpenAlgo",
+        "mode": "local" if __name__ == "__main__" else "cloud"
+    }
 # =========================
 # INIT APP
 # =========================
