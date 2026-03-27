@@ -815,22 +815,23 @@ if __name__ == "__main__":
     debug = os.getenv("FLASK_DEBUG", "False").lower() in ("true", "1", "t")
 
     # Start ngrok tunnel if enabled
-    should_start_ngrok = True
-    if debug:
-        should_start_ngrok = os.environ.get("WERKZEUG_RUN_MAIN") == "true"
+        # Disable ngrok in cloud (important)
+    if os.getenv("ENV") != "PROD":
+        should_start_ngrok = True
+        if debug:
+            should_start_ngrok = os.environ.get("WERKZEUG_RUN_MAIN") == "true"
 
-    if should_start_ngrok and os.getenv("NGROK_ALLOW", "FALSE").upper() == "TRUE":
-        from utils.ngrok_manager import start_ngrok_tunnel
-
-        start_ngrok_tunnel(port)
+        if should_start_ngrok and os.getenv("NGROK_ALLOW", "FALSE").upper() == "TRUE":
+            from utils.ngrok_manager import start_ngrok_tunnel
+            start_ngrok_tunnel(port)
 
     # Exclude strategies and logs directories from reloader
-    reloader_options = {
+    """reloader_options = {
         "exclude_patterns": [
             "*/strategies/*",
             "*/log/*",
             "*.log",
             "*.bak",
         ]
-    }
-    socketio.run(app, host=host_ip, port=port, debug=debug, reloader_options=reloader_options)
+    }"""
+    socketio.run(app, host=host_ip, port=port, debug=debug, allow_unsafe_werkzeug=True)
